@@ -9,6 +9,14 @@ const Token = {
     return result.rows[0];
   },
 
+    async updateToken (id, newToken){
+    const result = await pool.query(
+      `UPDATE refresh_tokens SET token = $1 WHERE id = $2 RETURNING *`,
+      [newToken, id]
+    );
+    return result.rows[0];
+  },
+
   async find(token) {
     const result = await pool.query(
       `SELECT * FROM refresh_tokens WHERE token = $1`,
@@ -20,6 +28,7 @@ const Token = {
   async delete(token) {
     await pool.query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
   }
+  
 };
 
 module.exports = Token;

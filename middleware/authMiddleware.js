@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ quiet: true });
 const User = require('../models/userModel');
+const {verifyAccessToken} = require('../services/jwtServices');
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -12,7 +13,7 @@ const authMiddleware = async (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = await verifyAccessToken(token);
     const user = await User.findById(decoded.id);
 
     if (!user) {
