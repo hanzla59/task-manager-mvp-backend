@@ -17,11 +17,7 @@ app.use(morgan(':method :url :status :response-time ms'));
 
 
 app.get('/', (req, res)=> {
-<<<<<<< HEAD
     res.status(200).send("backend Server is running on AWS EC2 Instance");
-=======
-    res.status(200).send("backend Server is running locally");
->>>>>>> 060f3f1761320cabe30d778eab5706fcec6f8ef7
 })
 
 
