@@ -1,7 +1,7 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const Token = require('../models/tokenModel');
-const { generateAccessToken, generateRefreshToken } = require('../services/jwtServices')
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../services/jwtServices')
 require('dotenv').config({ quiet: true });
 
 // Register a new user
@@ -70,12 +70,19 @@ const refreshToken = async (req, res) => {
     if (!result) return res.status(403).json({ message: 'Invalid refresh token' });
 
     // Verify refresh token
-    jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
-      if (err) return res.status(403).json({ message: 'Invalid refresh token' });
+    // jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
+    //   if (err) return res.status(403).json({ message: 'Invalid refresh token' });
 
-      const accessToken = await generateAccessToken({ id: decoded.id });
-      res.status(200).json({ accessToken: accessToken });
-    });
+    //   const accessToken = await generateAccessToken({ id: decoded.id });
+    //   res.status(200).json({ accessToken: accessToken });
+    // });
+    const decoded = await verifyRefreshToken(token);
+    if (!decoded) return res.status(403).json({ message: 'Invalid refresh token' });
+    const accessToken = await generateAccessToken({ id: decoded.id });
+    const newRefreshToken = await generateRefreshToken({ id: decoded.id });
+    await Token.updateToken(result.id, newRefreshToken);
+    res.status(200).json({ accessToken: accessToken, refreshToken: newRefreshToken });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -88,8 +95,15 @@ const logout = async (req, res) => {
   if (!token) return res.status(400).json({ message: 'Token required' });
 
   try {
+    try {
+      await verifyRefreshToken(token);
+    } catch (error) {
+      return res.status(403).json({ message: 'Invalid or Expired token' });
+    }
+    const deletedToken = await Token.find(token);
+    if (!deletedToken) return res.status(403).json({ message: 'token not found' });
     await Token.delete(token);
-    res.json({ message: 'Logged out successfully' });
+    res.status(200).json({ message: 'Logged out successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
