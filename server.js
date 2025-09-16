@@ -17,7 +17,7 @@ app.use(morgan(':method :url :status :response-time ms'));
 
 
 app.get('/', (req, res)=> {
-    res.status(200).send("backend Server is running")
+    res.status(200).send("backend Server is running locally");
 })
 
 
