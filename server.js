@@ -17,7 +17,7 @@ app.use(morgan(':method :url :status :response-time ms'));
 
 
 app.get('/', (req, res)=> {
-    res.status(200).send("backend Server is running")
+    res.status(200).send("backend Server is running on AWS EC2 Instance");
 })
 
 
@@ -25,6 +25,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 
-app.listen(PORT, ()=> {
+app.listen(PORT, "0.0.0.0", ()=> {
     console.log(`Server is running on port ${PORT}`);
 })
