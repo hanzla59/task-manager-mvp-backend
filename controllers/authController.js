@@ -96,7 +96,10 @@ const login = async (req, res) => {
       await client.query('ROLLBACK');
       return res.status(500).json({ message: 'Token generation failed' });
     }
-
+    const findToken = await Token.findByUserId(user.id, client);
+    if(findToken){
+      await Token.delete(findToken.token, client);
+    }
     const token = await Token.create(user.id, refreshToken, client);
     if (!token) {
       await client.query('ROLLBACK');

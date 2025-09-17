@@ -25,6 +25,14 @@ const Token = {
     return result.rows[0];
   },
 
+  async findByUserId(userId, client = pool) {
+    const result = await client.query(
+      `SELECT * FROM refresh_tokens WHERE user_id = $1`,
+      [userId]
+    );
+    return result.rows[0];
+  },
+
   async delete(token, client = pool) {
     await client.query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
   }
