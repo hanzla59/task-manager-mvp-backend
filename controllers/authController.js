@@ -15,7 +15,7 @@ const registerSchema = Joi.object({
 const register = async (req, res) => {
   const client = await pool.connect();
   try {
-    const { error, value } = registerSchema.validate({ name, email, password });
+    const { error, value } = registerSchema.validate(req.body);
 
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
@@ -68,6 +68,7 @@ const loginSchema = Joi.object({
 
 // Login user
 const login = async (req, res) => {
+  const { name, email, password } = req.body;
   const client = await pool.connect();
   try {
     const { error, value } = loginSchema.validate(req.body);
